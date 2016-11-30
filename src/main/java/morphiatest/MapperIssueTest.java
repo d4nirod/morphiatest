@@ -32,13 +32,13 @@ public class MapperIssueTest {
 		configure();
 		
 		CWTask task = new CWTask("Testing Mapper " + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date()));
-				
-		Key<CWTask> key = ds.getKey(task);
-		task.assignees = new ArrayList<Key<CWTask>>();
-		task.assignees.add(key);
 		
 		Key<CWTask> saved = ds.save(task);
 		System.out.println("'" + task.name + "' saved with ID: " + saved.getId());
+		
+		Key<CWTask> key = new Key<>(CWTask.class, "cw_task", task.id);
+		task.assignees = new ArrayList<Key<CWTask>>();
+		task.assignees.add(key);
 		
 		Query<CWTask> q = ds.createQuery(CWTask.class).field("_id").equal(saved.getId());
         ds.update(q, ds.createUpdateOperations(CWTask.class).set("assignees", task.assignees));
