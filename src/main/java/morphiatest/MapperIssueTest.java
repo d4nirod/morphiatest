@@ -30,17 +30,21 @@ public class MapperIssueTest {
 
 	public static void main(String[] args) {
 		configure();
+		String aDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date());
 		
-		CWTask task = new CWTask("Testing Mapper " + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date()));
+		Object userId = ds.save(new CWUser("John " + aDate )).getId();
+		CWUser user = ds.get(CWUser.class, userId);
+		System.out.println("'" + user.name + "' saved with ID: " + user.id);
 		
-		Key<CWTask> saved = ds.save(task);
-		System.out.println("'" + task.name + "' saved with ID: " + saved.getId());
-		
-		Key<CWTask> key = new Key<>(CWTask.class, "cw_task", task.id);
-		task.assignees = new ArrayList<Key<CWTask>>();
+		Object taskId = ds.save(new CWTask("Task testing Mapper " + aDate)).getId();
+		CWTask task = ds.get(CWTask.class, taskId);
+		System.out.println("'" + task.name + "' saved with ID: " + task.id);
+				
+		Key<CWUser> key = new Key<>(CWUser.class, "user_temp", user.id);
+		task.assignees = new ArrayList<Key<CWUser>>();
 		task.assignees.add(key);
 		
-		Query<CWTask> q = ds.createQuery(CWTask.class).field("_id").equal(saved.getId());
+		Query<CWTask> q = ds.createQuery(CWTask.class).field("_id").equal(task.id);
         ds.update(q, ds.createUpdateOperations(CWTask.class).set("assignees", task.assignees));
 	}
 	
@@ -51,8 +55,8 @@ public class MapperIssueTest {
 			MongoClient mongo = new MongoClient(new MongoClientURI(dbURI));
 			Morphia morphia = new Morphia();
 			ds = morphia.createDatastore(mongo, dbName);
-			ds.ensureIndexes();
-			ds.ensureCaps();
+//			ds.ensureIndexes();
+//			ds.ensureCaps();
 
 			System.out.println("Using MongoDB version: " + ds.getDB().command("buildInfo").getString("version"));
 //			System.out.println("Using MongoDB Java Driver version: " + ds.getMongo().getVersion());
