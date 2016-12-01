@@ -31,8 +31,8 @@ public class MapperIssueTest {
 	private static Datastore ds;
 	
 	public static void main(String[] args) {
+		log.info("********** STARTING " + MapperIssueTest.class.getName() + " *************");
 		configure();
-		
 		Object taskId = ds.save(new CWTask("Testing Mapper " + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date()))).getId();
 		CWTask task = ds.get(CWTask.class, taskId);
 		log.info("'" + task.name + "' saved with ID: " + task.id);
@@ -48,6 +48,7 @@ public class MapperIssueTest {
 		try {
 			String dbURI = "mongodb://127.0.0.1:27017";
 			String dbName = "cloudwife";
+			log.info("Using Java version: " + System.getProperty("java.version"));
 			MongoClient mongo = new MongoClient(new MongoClientURI(dbURI));
 			Morphia morphia = new Morphia();
 			ds = morphia.createDatastore(mongo, dbName);
