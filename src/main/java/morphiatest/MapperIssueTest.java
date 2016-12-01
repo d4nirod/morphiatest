@@ -15,6 +15,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.apache.log4j.Logger;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Key;
 import org.mongodb.morphia.Morphia;
@@ -26,21 +27,20 @@ import com.mongodb.MongoClientURI;
 
 public class MapperIssueTest {
 	
+	private static Logger log = Logger.getLogger(MapperIssueTest.class.getName());
 	private static Datastore ds;
-
+	
 	public static void main(String[] args) {
 		configure();
 		
-		CWTask task = new CWTask("Testing Mapper " + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date()));
+		Object taskId = ds.save(new CWTask("Testing Mapper " + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date()))).getId();
+		CWTask task = ds.get(CWTask.class, taskId);
+		log.info("'" + task.name + "' saved with ID: " + task.id);
 		
-		Key<CWTask> saved = ds.save(task);
-		System.out.println("'" + task.name + "' saved with ID: " + saved.getId());
-		
-		Key<CWTask> key = new Key<>(CWTask.class, "cw_task", task.id);
 		task.assignees = new ArrayList<Key<CWTask>>();
-		task.assignees.add(key);
+		task.assignees.add(new Key<>(CWTask.class, "cw_task", task.id));
 		
-		Query<CWTask> q = ds.createQuery(CWTask.class).field("_id").equal(saved.getId());
+		Query<CWTask> q = ds.createQuery(CWTask.class).field("_id").equal(task.id);
         ds.update(q, ds.createUpdateOperations(CWTask.class).set("assignees", task.assignees));
 	}
 	
@@ -51,16 +51,12 @@ public class MapperIssueTest {
 			MongoClient mongo = new MongoClient(new MongoClientURI(dbURI));
 			Morphia morphia = new Morphia();
 			ds = morphia.createDatastore(mongo, dbName);
-			ds.ensureIndexes();
-			ds.ensureCaps();
-
-			System.out.println("Using MongoDB version: " + ds.getDB().command("buildInfo").getString("version"));
-//			System.out.println("Using MongoDB Java Driver version: " + ds.getMongo().getVersion());
+			log.info("Using MongoDB version: " + ds.getDB().command("buildInfo").getString("version"));
 			printLibraryVersions(mongo, morphia);
-			System.out.println("Configured MongoDB to URI: '" + dbURI + "', DB name: '" + dbName);
+			log.info("Configured MongoDB to URI: '" + dbURI + "', DB name: '" + dbName);
 			
 		} catch (Throwable exc) {
-			System.out.println("Could not configure MongoDB: " + exc);
+			log.error("Could not configure MongoDB: " + exc);
 			throw new RuntimeException(exc);
 		}
 	}
@@ -75,7 +71,7 @@ public class MapperIssueTest {
 			Attributes mainAttributes = manifest.getMainAttributes();			
 			String bundleName = (String) mainAttributes.getValue(Constants.BUNDLE_NAME);
 			String bundleVersion = (String) mainAttributes.getValue(Constants.BUNDLE_VERSION);
-			System.out.println("Using: "  + bundleName + " version: " + bundleVersion);
+			log.info("Using: "  + bundleName + " version: " + bundleVersion);
 	
 			jarLocation = morphia.getClass().getProtectionDomain().getCodeSource().getLocation();
 			jarPath = jarLocation.getPath();
@@ -89,7 +85,7 @@ public class MapperIssueTest {
 			mainAttributes = manifest.getMainAttributes();			
 			bundleName = (String) mainAttributes.getValue(Constants.BUNDLE_NAME);
 			bundleVersion = (String) mainAttributes.getValue(Constants.BUNDLE_VERSION);
-			System.out.println("Using: "  + bundleName + " version: " + bundleVersion);
+			log.info("Using: "  + bundleName + " version: " + bundleVersion);
 		return jarFile;
 		} finally {
 			if (jarFile != null) {
@@ -97,5 +93,4 @@ public class MapperIssueTest {
 			}
 		}
 	}
-
 }

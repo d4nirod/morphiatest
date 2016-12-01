@@ -24,6 +24,10 @@ public class CWTask implements Serializable {
 
 	public List<Key<CWTask>> assignees = new ArrayList<>();
 
+	public CWTask() {
+		super();
+	}
+	
 	public CWTask(String name) {
 		super();
 		this.name = name;
