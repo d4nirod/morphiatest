@@ -11,7 +11,7 @@ import java.io.Serializable;
 import org.mongodb.morphia.Key;
 import org.mongodb.morphia.annotations.Embedded;
 
-import entities.CWUser;
+import com.farmerswife.cloudwife.entities.CWUser;
 
 
 @Embedded

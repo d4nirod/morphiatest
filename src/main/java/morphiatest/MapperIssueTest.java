@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import org.mongodb.morphia.Key;
 import org.mongodb.morphia.query.Query;
 
-import entities.CWTask;
+import com.farmerswife.cloudwife.entities.CWTask;
 
 public class MapperIssueTest extends Tester {
 	

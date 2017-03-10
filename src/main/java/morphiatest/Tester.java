@@ -20,7 +20,7 @@ public class Tester {
 
 
 
-	public static void configure() {
+	public static Datastore configure() {
 		try {
 			String dbURI = "mongodb://127.0.0.1:27017";
 			String dbName = "cloudwife";
@@ -31,6 +31,7 @@ public class Tester {
 			log.info("Using MongoDB version: " + ds.getDB().command("buildInfo").getString("version"));
 			printLibraryVersions(mongo, morphia);
 			log.info("Configured MongoDB to URI: '" + dbURI + "', DB name: '" + dbName);
+			return ds;
 			
 		} catch (Throwable exc) {
 			log.error("Could not configure MongoDB: " + exc);
@@ -38,7 +39,7 @@ public class Tester {
 		}
 	}
 
-	private static JarFile printLibraryVersions(MongoClient mongo, Morphia morphia) throws IOException {
+	public static JarFile printLibraryVersions(MongoClient mongo, Morphia morphia) throws IOException {
 		JarFile jarFile = null;
 		try {
 			URL jarLocation = mongo.getClass().getProtectionDomain().getCodeSource().getLocation();

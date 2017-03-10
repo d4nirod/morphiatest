@@ -4,7 +4,7 @@
  * 
  */
 
-package entities;
+package com.farmerswife.cloudwife.entities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
